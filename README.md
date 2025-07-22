@@ -37,6 +37,11 @@ The project therefore focuses on a crucial part of  model development, which is 
 
 ### High-level architecture
 #### Core components
+ML Framework: PyTorch
+Orchestration: Kubernetes
+Cloud Platform: Google Cloud Platform
+Checkpoint Storage: Google Cloud Storage with versioning
+Monitoring: Log file
 #### Data flow
 #### Failure handling
 ## System implementation
