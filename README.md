@@ -36,12 +36,13 @@ The project therefore focuses on a crucial part of  model development, which is 
 - Recovery rate from failures is 100%
 
 ### High-level architecture
+#### System architecture
 #### Core components
-ML Framework: PyTorch
-Orchestration: Kubernetes
-Cloud Platform: Google Cloud Platform
-Checkpoint Storage: Google Cloud Storage with versioning
-Monitoring: Log file
+- Machine learning framework: PyTorch
+- Orchestration: Kubernetes
+- Cloud platform: Google Cloud Platform
+- Checkpoint storage: Google Cloud Storage with versioning
+- Monitoring: Log file
 #### Data flow
 #### Failure handling
 ## System implementation
