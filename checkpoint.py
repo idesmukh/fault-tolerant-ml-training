@@ -32,21 +32,31 @@ loss = y.mean()
 loss.backward()
 optimizer.step()
 
-# Save model and optimizer.
-checkpoint = {
+def save_checkpoint(model, optimizer, filepath):
+    """Save model and optimizer."""
+    checkpoint = {
     'model_state_dict': model.state_dict(),
     'optimizer_state_dict': optimizer.state_dict(),
-}
-torch.save(checkpoint, 'checkpoint.pt')
-print("Saved model and optimizer to checkpoint.pt")
+    }
+    torch.save(checkpoint, filepath)
 
-# Load model and optimizer.
+def load_checkpoint(filepath, model, optimizer):
+    """Load model and optimizer."""
+    checkpoint = torch.load(filepath)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+# Test save checkpoint function.
+save_checkpoint(model, optimizer, 'checkpoint.pt')
+print("Successfully saved checkpoint")
+
+# Create second model and optimizer.
 model2 = TestModel()
 optimizer2 = torch.optim.Adam(model2.parameters())
 
-checkpoint = torch.load('checkpoint.pt')
-model2.load_state_dict(checkpoint['model_state_dict'])
-optimizer2.load_state_dict(checkpoint['optimizer_state_dict'])
-print("Loaded model and optimizer from checkpoint.pt")
+# Test load checkpoint function.
+load_checkpoint('checkpoint.pt', model2, optimizer2)
+print("Successfully loaded checkpoint")
 
+# Verify if optimizer state exists.
 print(f"Optimizer state is: {optimizer2.state}")
