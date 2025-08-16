@@ -22,17 +22,6 @@ class TestModel(nn.Module):
     def forward(self, x):
         return self.layer(x) # Pass input tensor through linear layer.
 
-# Create model and optimizer.
-model = TestModel()
-optimizer = torch.optim.Adam(model.parameters())
-
-# Generate state for optimizer.
-x = torch.randn(8, 10)
-y = model(x)
-loss = y.mean()
-loss.backward()
-optimizer.step()
-
 def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints'):
     """Save model, optimizer and resumable training state."""
 
@@ -102,42 +91,54 @@ def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkp
     loss = checkpoint.get('loss', 0)
     return epoch, step, loss
 
-# Test save checkpoint function.
-epoch = 1
-step = 1
-loss = 0.5
-save_checkpoint(model, optimizer, epoch, step, loss, is_best=False)
-print("Successfully saved latest checkpoint")
+if __name__ == "__main__":
+    # Create model and optimizer.
+    model = TestModel()
+    optimizer = torch.optim.Adam(model.parameters())
 
-# Test best checkpoint save.
-lower_loss = 0.2
-save_checkpoint(model, optimizer, epoch=2, step=2, loss=lower_loss, is_best=True)
-print("Successfully saved best checkpoint")
+    # Generate state for optimizer.
+    x = torch.randn(8, 10)
+    y = model(x)
+    loss = y.mean()
+    loss.backward()
+    optimizer.step()
 
-# Create second model and optimizer.
-model2 = TestModel()
-optimizer2 = torch.optim.Adam(model2.parameters())
+    # Test save checkpoint.
+    epoch = 1
+    step = 1
+    loss = 0.5
+    save_checkpoint(model, optimizer, epoch, step, loss, is_best=False)
+    print("Successfully saved latest checkpoint")
 
-# Testing data integrity check.
-if os.path.exists('checkpoint.pt.tmp'):
-    print("Temp file found from previous interrupted checkpoint save")
-    if is_checkpoint_valid('checkpoint.pt.tmp'):
-        print("Temp file is valid")
-    else:
-        print("Temp file is invalid")
+    # Test best checkpoint save.
+    lower_loss = 0.2
+    save_checkpoint(model, optimizer, epoch=2, step=2, loss=lower_loss, is_best=True)
+    print("Successfully saved best checkpoint")
 
-# Test load checkpoint function from latest path.
-latest_path = './checkpoints/checkpoint_latest.pt'
-if is_checkpoint_valid(latest_path):
-    print("Checkpoint exists, resuming from last checkpoint")
-    epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
-    print(f"Successfully loaded checkpoint from epoch {epoch}, step {step} and loss {loss}")
+    # Create second model and optimizer.
+    model2 = TestModel()
+    optimizer2 = torch.optim.Adam(model2.parameters())
 
-# Test load checkpoint function from best path.
-best_path = './checkpoints/checkpoint_best.pt'
-if is_checkpoint_valid(best_path):
-    epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
-    print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
+    # Testing data integrity check.
+    if os.path.exists('checkpoint.pt.tmp'):
+        print("Temp file found from previous interrupted checkpoint save")
+        if is_checkpoint_valid('checkpoint.pt.tmp'):
+            print("Temp file is valid")
+        else:
+            print("Temp file is invalid")
 
-# Verify if optimizer state exists.
-print(f"Optimizer state is: {optimizer2.state}")
+    # Test load checkpoint function from latest path.
+    latest_path = './checkpoints/checkpoint_latest.pt'
+    if is_checkpoint_valid(latest_path):
+        print("Checkpoint exists, resuming from last checkpoint")
+        epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
+        print(f"Successfully loaded checkpoint from epoch {epoch}, step {step} and loss {loss}")
+
+    # Test load checkpoint function from best path.
+    best_path = './checkpoints/checkpoint_best.pt'
+    if is_checkpoint_valid(best_path):
+        epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
+        print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
+
+    # Verify if optimizer state exists.
+    print(f"Optimizer state is: {optimizer2.state}")
