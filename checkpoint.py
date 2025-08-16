@@ -37,14 +37,20 @@ def checkpoint_exists(filepath):
     """Verify if checkpoint file exists on path."""
     return os.path.exists(filepath)
 
-def save_checkpoint(model, optimizer, epoch, step, filepath):
+def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints'):
     """Save model, optimizer and resumable training state."""
+
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
     checkpoint = {
-    'model_state_dict': model.state_dict(),
-    'optimizer_state_dict': optimizer.state_dict(),
-    'epoch': epoch,
-    'step': step,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'epoch': epoch,
+        'step': step,
+        'loss': loss,
     }
+
+    filepath = os.path.join(checkpoint_dir, 'checkpoint_latest.pt')
 
     # Remove orphaned temp file from previous interrupted save.
     temp_filepath = filepath + '.tmp'
@@ -54,6 +60,10 @@ def save_checkpoint(model, optimizer, epoch, step, filepath):
     # Atomic save for file integrity.
     torch.save(checkpoint, temp_filepath)
     os.replace(temp_filepath, filepath)
+
+    if is_best:
+        best_filepath = os.path.join(checkpoint_dir, 'checkpoint_best.pt')
+        torch.save(checkpoint, best_filepath)
 
 def is_checkpoint_valid(filepath):
     """Check the data integrity of the checkpoint file."""
@@ -68,9 +78,21 @@ def is_checkpoint_valid(filepath):
         print(f"Checkpoint validation failed: {e}")
         return False
 
-def load_checkpoint(filepath, model, optimizer):
-    """Load model, optimizer, training state, and return position."""
-    # Validate before loading
+def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkpoint_dir='./checkpoints'):
+    """Load model, optimizer, training state, and return position.
+
+    Args:
+        checkpoint_type: 'latest' or 'best'
+        model: Model to load
+        optimizer: Optimizer to load
+        checkpoint_dir: Directory having checkpoints
+    """
+    if checkpoint_type == 'best':
+        filepath = os.path.join(checkpoint_dir, 'checkpoint_best.pt')
+    else:
+        filepath = os.path.join(checkpoint_dir,'checkpoint_latest.pt')
+
+    # Validate before loading.
     if not is_checkpoint_valid(filepath):
         raise ValueError(f"Checkpoint {filepath} is invalid")
 
@@ -81,13 +103,20 @@ def load_checkpoint(filepath, model, optimizer):
     # Resume from last save state.
     epoch = checkpoint.get('epoch', 0)
     step = checkpoint.get('step', 0)
-    return epoch, step
+    loss = checkpoint.get('loss', 0)
+    return epoch, step, loss
 
 # Test save checkpoint function.
 epoch = 1
 step = 1
-save_checkpoint(model, optimizer, epoch, step, 'checkpoint.pt')
-print("Successfully saved checkpoint")
+loss = 0.5
+save_checkpoint(model, optimizer, epoch, step, loss, is_best=False)
+print("Successfully saved latest checkpoint")
+
+# Test best checkpoint save.
+lower_loss = 0.2
+save_checkpoint(model, optimizer, epoch=2, step=2, loss=lower_loss, is_best=True)
+print("Successfully saved best checkpoint")
 
 # Create second model and optimizer.
 model2 = TestModel()
@@ -101,14 +130,18 @@ if os.path.exists('checkpoint.pt.tmp'):
     else:
         print("Temp file is invalid")
 
-# Test load checkpoint function.
-if checkpoint_exists('checkpoint.pt'):
+# Test load checkpoint function from latest path.
+latest_path = './checkpoints/checkpoint_latest.pt'
+if checkpoint_exists(latest_path):
     print("Checkpoint exists, resuming from last checkpoint")
-    epoch, step = load_checkpoint('checkpoint.pt', model2, optimizer2)
-    print(f"Successfully loaded checkpoint from epoch {epoch} and step {step}")
-else:
-    print("No checkpoint exists, starting from beginning")
-    epoch, step = 0, 0
+    epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
+    print(f"Successfully loaded checkpoint from epoch {epoch}, step {step} and loss {loss}")
+
+# Test load checkpoint function from best path.
+best_path = './checkpoints/checkpoint_best.pt'
+if checkpoint_exists(best_path):
+    epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
+    print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
 
 # Verify if optimizer state exists.
 print(f"Optimizer state is: {optimizer2.state}")
