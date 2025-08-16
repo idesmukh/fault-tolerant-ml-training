@@ -1,4 +1,4 @@
-# Fault-tolerant machine learning training pipeline for protein structure prediction
+# Fortis - Fault-tolerant machine learning training pipeline for protein structure prediction
 ## Introduction
 ## Literature review
 Protein structure prediction is a well-known application of computer science to the protein folding problem. Essentially, the protein folding problem relates to the the construction of a protein's atomic structure using its amino acid sequence [1]. Substantial progress has been made in this regard, with a major one being AlphaFold 2 by Google DeepMind. AlphaFold 2 uses a neural network architecture to predict protein structures with high accuracy [2].
