@@ -45,10 +45,35 @@ def save_checkpoint(model, optimizer, epoch, step, filepath):
     'epoch': epoch,
     'step': step,
     }
-    torch.save(checkpoint, filepath)
+
+    # Remove orphaned temp file from previous interrupted save.
+    temp_filepath = filepath + '.tmp'
+    if os.path.exists(temp_filepath):
+        os.remove(temp_filepath)
+
+    # Atomic save for file integrity.
+    torch.save(checkpoint, temp_filepath)
+    os.replace(temp_filepath, filepath)
+
+def is_checkpoint_valid(filepath):
+    """Check the data integrity of the checkpoint file."""
+    if not os.path.exists(filepath):
+        return False
+
+    try:
+        checkpoint = torch.load(filepath, map_location='cpu')
+        required_keys = ['model_state_dict', 'optimizer_state_dict', 'epoch', 'step']
+        return all(key in checkpoint for key in required_keys)
+    except Exception as e:
+        print(f"Checkpoint validation failed: {e}")
+        return False
 
 def load_checkpoint(filepath, model, optimizer):
     """Load model, optimizer, training state, and return position."""
+    # Validate before loading
+    if not is_checkpoint_valid(filepath):
+        raise ValueError(f"Checkpoint {filepath} is invalid")
+
     checkpoint = torch.load(filepath)
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -67,6 +92,14 @@ print("Successfully saved checkpoint")
 # Create second model and optimizer.
 model2 = TestModel()
 optimizer2 = torch.optim.Adam(model2.parameters())
+
+# Testing data integrity check.
+if os.path.exists('checkpoint.pt.tmp'):
+    print("Temp file found from previous interrupted checkpoint save")
+    if is_checkpoint_valid('checkpoint.pt.tmp'):
+        print("Temp file is valid")
+    else:
+        print("Temp file is invalid")
 
 # Test load checkpoint function.
 if checkpoint_exists('checkpoint.pt'):
