@@ -33,10 +33,6 @@ loss = y.mean()
 loss.backward()
 optimizer.step()
 
-def checkpoint_exists(filepath):
-    """Verify if checkpoint file exists on path."""
-    return os.path.exists(filepath)
-
 def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints'):
     """Save model, optimizer and resumable training state."""
 
@@ -132,14 +128,14 @@ if os.path.exists('checkpoint.pt.tmp'):
 
 # Test load checkpoint function from latest path.
 latest_path = './checkpoints/checkpoint_latest.pt'
-if checkpoint_exists(latest_path):
+if is_checkpoint_valid(latest_path):
     print("Checkpoint exists, resuming from last checkpoint")
     epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
     print(f"Successfully loaded checkpoint from epoch {epoch}, step {step} and loss {loss}")
 
 # Test load checkpoint function from best path.
 best_path = './checkpoints/checkpoint_best.pt'
-if checkpoint_exists(best_path):
+if is_checkpoint_valid(best_path):
     epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
     print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
 
