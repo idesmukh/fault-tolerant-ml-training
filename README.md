@@ -1,7 +1,7 @@
-# Resilient ML infrastructure with SLO monitoring for renewable energy forecasting 
+# Fault-tolerant ML infrastructure with SLO monitoring for solar energy forecasting
 ## Introduction
 ## Literature review
-Fault-tolerant ML pipeline for predicting solar panel power output from weather data with automatic failure recovery and training resumption.
+Fault-tolerant ML infrastructure with SLO monitoring for solar energy forecasting.
 ## System design
 ### Requirements gathering
 #### Functional requirements
