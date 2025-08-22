@@ -1,4 +1,4 @@
-# Fortis - Fault-tolerant machine learning training pipeline for solar panel power output prediction
+# Resilient ML infrastructure with SLO monitoring for renewable energy forecasting 
 ## Introduction
 ## Literature review
 Fault-tolerant ML pipeline for predicting solar panel power output from weather data with automatic failure recovery and training resumption.
