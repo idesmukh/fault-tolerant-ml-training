@@ -16,11 +16,11 @@ import time
 # Make a test model.
 class TestModel(nn.Module):
     def __init__(self):
-        super().__init__() # Initialize the parent class.
-        self.layer = nn.Linear(10, 2) # Create a fully connected layer.
+        super().__init__()
+        self.layer = nn.Linear(10, 2)
 
     def forward(self, x):
-        return self.layer(x) # Pass input tensor through linear layer.
+        return self.layer(x)
 
 def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints'):
     """Save model, optimizer and resumable training state."""
