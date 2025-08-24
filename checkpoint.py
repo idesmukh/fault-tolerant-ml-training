@@ -50,19 +50,6 @@ def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoi
         best_filepath = os.path.join(checkpoint_dir, 'checkpoint_best.pt')
         torch.save(checkpoint, best_filepath)
 
-def is_checkpoint_valid(filepath):
-    """Check the data integrity of the checkpoint file."""
-    if not os.path.exists(filepath):
-        return False
-
-    try:
-        checkpoint = torch.load(filepath, map_location='cpu')
-        required_keys = ['model_state_dict', 'optimizer_state_dict', 'epoch', 'step']
-        return all(key in checkpoint for key in required_keys)
-    except Exception as e:
-        print(f"Checkpoint validation failed: {e}")
-        return False
-
 def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkpoint_dir='./checkpoints'):
     """Load model, optimizer, training state, and return position.
 
@@ -77,18 +64,24 @@ def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkp
     else:
         filepath = os.path.join(checkpoint_dir,'checkpoint_latest.pt')
 
-    # Validate before loading.
-    if not is_checkpoint_valid(filepath):
-        raise ValueError(f"Checkpoint {filepath} is invalid")
+    # Load the checkpoint from disk.
+    checkpoint = torch.load(filepath, map_location='cpu')
 
-    checkpoint = torch.load(filepath)
+    # Validate required keys.
+    required_keys = ['model_state_dict', 'optimizer_state_dict', 'epoch', 'step']
+    for key in required_keys:
+        if key not in checkpoint:
+            raise KeyError(f"Checkpoint is missing required key: '{key}'")
+
     model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    if optimizer is not None:
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
     # Resume from last save state.
     epoch = checkpoint.get('epoch', 0)
     step = checkpoint.get('step', 0)
-    loss = checkpoint.get('loss', 0)
+    loss = checkpoint.get('loss', 0.0)
+
     return epoch, step, loss
 
 if __name__ == "__main__":
@@ -119,26 +112,27 @@ if __name__ == "__main__":
     model2 = TestModel()
     optimizer2 = torch.optim.Adam(model2.parameters())
 
-    # Testing data integrity check.
-    if os.path.exists('checkpoint.pt.tmp'):
-        print("Temp file found from previous interrupted checkpoint save")
-        if is_checkpoint_valid('checkpoint.pt.tmp'):
-            print("Temp file is valid")
-        else:
-            print("Temp file is invalid")
-
-    # Test load checkpoint function from latest path.
+    # Test load checkpoint function from latest path.    
     latest_path = './checkpoints/checkpoint_latest.pt'
-    if is_checkpoint_valid(latest_path):
-        print("Checkpoint exists, resuming from last checkpoint")
+    print("\nLoading from latest checkpoint")
+    try:
         epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
-        print(f"Successfully loaded checkpoint from epoch {epoch}, step {step} and loss {loss}")
+        print(f"Successfully loaded latest checkpoint from epoch {epoch}, step {step} and loss {loss}")
+    except FileNotFoundError:
+        print("Latest checkpoint not found, restarting")
+    except KeyError as e:
+        print(f"Latest checkpoint file integrity error: {e}")
 
     # Test load checkpoint function from best path.
     best_path = './checkpoints/checkpoint_best.pt'
-    if is_checkpoint_valid(best_path):
+    print("\nLoading from best checkpoint")
+    try:
         epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
         print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
+    except FileNotFoundError:
+        print("Best checkpoint not found, restarting")
+    except KeyError as e:
+        print(f"Best checkpoint file integrity error: {e}")
 
     # Verify if optimizer state exists.
     print(f"Optimizer state is: {optimizer2.state}")
