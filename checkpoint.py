@@ -22,14 +22,19 @@ class TestModel(nn.Module):
     def forward(self, x):
         return self.layer(x)
 
-def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints'):
+def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoint_dir='./checkpoints', timestamp=None, batch_idx=0):
     """Save model, optimizer and resumable training state."""
 
     os.makedirs(checkpoint_dir, exist_ok=True)
 
+    if timestamp is None:
+        timestamp = time.time()
+
     checkpoint = {
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
+        'timestamp': timestamp,
+        'batch_idx': batch_idx,
         'epoch': epoch,
         'step': step,
         'loss': loss,
@@ -68,7 +73,7 @@ def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkp
     checkpoint = torch.load(filepath, map_location='cpu')
 
     # Validate required keys.
-    required_keys = ['model_state_dict', 'optimizer_state_dict', 'epoch', 'step']
+    required_keys = ['model_state_dict', 'optimizer_state_dict', 'epoch', 'step', 'timestamp', 'batch_idx']
     for key in required_keys:
         if key not in checkpoint:
             raise KeyError(f"Checkpoint is missing required key: '{key}'")
@@ -81,8 +86,10 @@ def load_checkpoint(checkpoint_type='latest', model=None, optimizer=None, checkp
     epoch = checkpoint.get('epoch', 0)
     step = checkpoint.get('step', 0)
     loss = checkpoint.get('loss', 0.0)
+    timestamp = checkpoint.get('timestamp', None)
+    batch_idx = checkpoint.get('batch_idx', 0)
 
-    return epoch, step, loss
+    return epoch, step, loss, timestamp, batch_idx
 
 if __name__ == "__main__":
     # Create model and optimizer.
@@ -116,7 +123,7 @@ if __name__ == "__main__":
     latest_path = './checkpoints/checkpoint_latest.pt'
     print("\nLoading from latest checkpoint")
     try:
-        epoch, step, loss = load_checkpoint('latest', model2, optimizer2)
+        epoch, step, loss, timestamp, batch_idx = load_checkpoint('latest', model2, optimizer2)
         print(f"Successfully loaded latest checkpoint from epoch {epoch}, step {step} and loss {loss}")
     except FileNotFoundError:
         print("Latest checkpoint not found, restarting")
@@ -127,7 +134,7 @@ if __name__ == "__main__":
     best_path = './checkpoints/checkpoint_best.pt'
     print("\nLoading from best checkpoint")
     try:
-        epoch_best, step_best, loss_best = load_checkpoint('best', model2, optimizer2)
+        epoch_best, step_best, loss_best, timestamp_best, batch_idx_best = load_checkpoint('best', model2, optimizer2)
         print(f"Best checkpoint also exists with epoch {epoch_best}, step {step_best} and loss {loss_best}")
     except FileNotFoundError:
         print("Best checkpoint not found, restarting")
