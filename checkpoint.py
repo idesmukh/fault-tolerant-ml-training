@@ -1,7 +1,3 @@
-# Copyright (c) 2025 Ibad Desmukh
-#
-# SPDX-License-Identifier: MIT
-#
 """Implement and test basic checkpointing.
 
 Creates a basic layer, checkpoints it and loads it back.
