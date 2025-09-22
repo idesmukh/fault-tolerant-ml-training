@@ -1,7 +1,7 @@
-# Fault-tolerant machine learning pipeline for solar energy forecasting
+# Fault-tolerant machine learning pipeline training for solar energy forecasting
 ## Introduction
 ## Literature review
-Fault-tolerant machine learning pipeline for solar energy forecasting.
+Fault-tolerant machine learning pipeline training for solar energy forecasting.
 ## System design
 ### Requirements gathering
 #### Functional requirements
