@@ -32,6 +32,6 @@ pytest
 
 ## References
 
-[1] Cast AI, "Reduce cloud costs with spot instances," Cast AI Blog. [Online]. Available: https://lnkd.in/eMFhTzuA. [Accessed: Oct. 20, 2025].
+[1] Cast AI, "Reduce cloud costs with spot instances," Cast AI Blog. [Online]. Available: https://cast.ai/blog/reduce-cloud-costs-with-spot-instances/. [Accessed: Oct. 20, 2025].
 
 [2] J. Ousterhout, A Philosophy of Software Design. Palo Alto, CA: Yaknyam Press, 2018.
