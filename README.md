@@ -23,7 +23,7 @@ Press Ctrl+C at anytime to simulate interruption, then restart to resume automat
 pytest
 ```
 
-## Project Structure
+## Project structure
 
 - `model.py` - LSTM model and data generation
 - `checkpoint.py` - Atomic checkpointing logic
