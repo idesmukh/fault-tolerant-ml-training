@@ -8,7 +8,7 @@ def test_model_exists():
     
     model = SolarPowerPredictionLSTM()
 
-    test_input = torch.randn(2, 12, 4)
+    test_input = torch.randn(2, 12, 8)
 
     output = model(test_input)
 
