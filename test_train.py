@@ -51,3 +51,31 @@ def test_checkpoint_integration():
     finally:
         if os.path.exists(checkpoint_dir):
             shutil.rmtree(checkpoint_dir)
+
+def test_training_fault_tolerance():
+    """Test if training can recover after fault."""
+    from train import train_with_checkpointing
+    from checkpoint import load_checkpoint
+    import os
+    import shutil
+
+    checkpoint_dir = './test_checkpoints'
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    try:
+        train_with_checkpointing(num_epochs=2, checkpoint_dir=checkpoint_dir)
+
+        train_with_checkpointing(num_epochs=5, checkpoint_dir=checkpoint_dir)
+
+        from model import SolarPowerPredictionLSTM
+        model = SolarPowerPredictionLSTM()
+        optimizer = torch.optim.Adam(model.parameters())
+        epoch, step, loss, timestamp, batch_idx = load_checkpoint(
+            'latest', model, optimizer, checkpoint_dir
+        )
+
+        assert epoch == 5
+    
+    finally:
+        if os.path.exists(checkpoint_dir):
+            shutil.rmtree(checkpoint_dir)
