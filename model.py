@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 class SolarPowerPredictionLSTM(nn.Module):
     def __init__(self):
@@ -24,3 +24,13 @@ class SyntheticSolarDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.X[idx], self.y[idx]
+
+def create_dataloaders(batch_size=32):
+    """Create train and validation loaders."""
+    train_dataset = SyntheticSolarDataset(num_samples=10000)
+    val_dataset = SyntheticSolarDataset(num_samples=1000)
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+    return train_loader, val_loader
