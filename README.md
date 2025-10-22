@@ -13,14 +13,14 @@ pip install -r requirements.txt
 
 Run the demo with the following terminal command:
 ```bash
-python demo.py
+python3 demo.py
 ```
 
 Press Ctrl+C at anytime to simulate interruption, then restart to resume automatically.
 
 ## Testing
 ```bash
-pytest
+python3 -m pytest
 ```
 
 ## Project structure
