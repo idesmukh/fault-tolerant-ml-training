@@ -15,7 +15,7 @@ In case of an interruption during the training, a checkpoint of the model includ
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/idesmukh/fault-tolerant-ml-training
-    cd systemeye
+    cd fault-tolerant-ml-training
     ```
 
 2.  **Install the requirements:**
