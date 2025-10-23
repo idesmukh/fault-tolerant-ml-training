@@ -23,8 +23,7 @@ def save_checkpoint(model, optimizer, epoch, step, loss, is_best=False, checkpoi
 
     os.makedirs(checkpoint_dir, exist_ok=True)
 
-    if timestamp is None:
-        timestamp = time.time()
+    timestamp = time.time()
 
     checkpoint = {
         'model_state_dict': model.state_dict(),
