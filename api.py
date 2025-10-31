@@ -1,11 +1,26 @@
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
+from pydantic import BaseModel, Field
+from typing import List
 import torch
 from model import SolarPowerPredictionLSTM
 from checkpoint import load_checkpoint
 import os
 
 model = None
+
+class ForecastingInput(BaseModel):
+    data: List[List[float]] = Field(..., description="Shape: (24, 8)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "data": [[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]] * 24
+            }
+        }
+
+class ForecastingOutput(BaseModel):
+    forecast: float
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -42,6 +57,15 @@ def status_check():
         "status": "stable",
         "model_loaded": model_loaded
     }
+
+@app.post("/forecast", response_model=ForecastingOutput)
+def forecast(input_data: ForecastingInput):
+    input_tensor = torch.tensor([input_data.data], dtype=torch.float32)
+
+    with torch.no_grad():
+        forecast = model(input_tensor)
+    
+    return ForecastingOutput(forecast=forecast.item())
 
 if __name__ == "__main__":
     import uvicorn
