@@ -8,6 +8,19 @@ The ML training pipeline is built to forecast solar power generation using an LS
 
 In case of an interruption during the training, a checkpoint of the model including weights, optimizer state, batch index, epoch, step and loss, are saved in a file. When the system is restarted, it automatically resumes from the previous checkpoint. This ML training pipeline therefore allows one to use spot instances for training without losing training progress.
 
+## Roadmap
+
+- [x] Checkpointing functionality
+- [x] LSTM model implementation
+- [x] Synthetic dataset generation
+- [x] Fault-tolerant training loop
+- [x] Interactive demo
+- [x] Comprehensive tests
+- [ ] Training metrics dashboard
+- [ ] Docker compose setup
+- [ ] Complete architecture documentation
+- [ ] Performance metrics
+
 ## Getting started
 
 ### Installation
