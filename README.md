@@ -10,16 +10,25 @@ In case of an interruption during the training, a checkpoint of the model includ
 
 ## Roadmap
 
-- [x] Checkpointing functionality
+- [x] Fault-tolerant checkpointing with atomic writes
 - [x] LSTM model implementation
 - [x] Synthetic dataset generation
-- [x] Fault-tolerant training loop
+- [x] Automatic training recovery
 - [x] Interactive demo
-- [x] Comprehensive tests
-- [ ] Training metrics dashboard
-- [ ] Docker compose setup
-- [ ] Complete architecture documentation
-- [ ] Performance metrics
+- [x] Comprehensive pytest tests
+- [x] Docker containerization
+- [x] FastAPI inference API
+- [ ] AWS S3 checkpoint integration
+- [ ] MLflow experiment tracking
+- [ ] Kubernetes Job manifest
+- [ ] GitHub Actions CI/CD
+- [ ] API authentication
+- [ ] Model versioning
+- [ ] Prometheus monitoring
+- [ ] Real solar data integration
+- [ ] Data validation pipeline
+- [ ] Automated retraining
+- [ ] Hyperparameter tuning
 
 ## Getting started
 
